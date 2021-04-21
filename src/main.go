@@ -7,20 +7,28 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/nerdthatnoonelikes/follower/src/structs"
 )
+
+var token string = "token here"
 
 func main() {
 	client := &http.Client{}
 	user := os.Args[1]
 	// followUser(user, client)
-	GetFollowers(user, client)
+	followers := GetFollowers(user, client)
+
+	for i := 0; i < len(followers); i++ {
+		followUser(followers[i].Login, client)
+		fmt.Printf(color.GreenString("Followed %s\n"), followers[i].Login)
+	}
 }
 
 func followUser(username string, client *http.Client) {
 	// Make a PUT request
 	req, _ := http.NewRequest("PUT", "https://api.github.com/user/following/"+username, nil)
-	req.Header.Set("Authorization", "token "+"tokenhere")
+	req.Header.Set("Authorization", "token "+token)
 	req.Header.Set("Accept", "application/vnd.github.v3+json")
 
 	_, err := client.Do(req)
@@ -33,7 +41,7 @@ func followUser(username string, client *http.Client) {
 
 func GetFollowers(username string, client *http.Client) structs.UsersFollowers {
 	req, _ := http.NewRequest("GET", "https://api.github.com/users/"+username+"/followers", nil)
-	req.Header.Set("Authorization", "token "+"tokenhere")
+	req.Header.Set("Authorization", "token "+token)
 
 	res, err := client.Do(req)
 
